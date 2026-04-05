@@ -1,0 +1,46 @@
+import numpy as np
+import random
+
+size = 4
+states = size * size
+actions = 4  # up, down, left, right
+
+Q = np.zeros((states, actions))
+E = np.zeros((states, actions))
+
+alpha = 0.1
+gamma = 0.9
+lam = 0.8
+epsilon = 0.1
+episodes = 200
+
+def next_state(state, action):
+    row, col = divmod(state, size)
+
+    if action == 0 and row > 0: row -= 1
+    elif action == 1 and row < size - 1: row += 1
+    elif action == 2 and col > 0: col -= 1
+    elif action == 3 and col < size - 1: col += 1
+
+    return row * size + col
+
+for ep in range(episodes):
+    state = 0
+    action = random.randint(0, actions - 1)
+    E.fill(0)
+
+    while state != states - 1:
+        ns = next_state(state, action)
+        reward = 10 if ns == states - 1 else -1
+        na = random.randint(0, actions - 1)
+
+        delta = reward + gamma * Q[ns][na] - Q[state][action]
+        E[state][action] += 1
+
+        Q += alpha * delta * E
+        E *= gamma * lam
+
+        state, action = ns, na
+
+print("Learned Q Table:")
+print(Q)
